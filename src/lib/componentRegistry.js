@@ -1,0 +1,32 @@
+import { lazy } from 'react';
+
+// Lazy load components to break circular dependencies
+export const COMPONENT_MAP = {
+  dashboard: lazy(() => import('../pages/Dashboard')),
+  contacts: lazy(() => import('../pages/Contacts')),
+  opportunities: lazy(() => import('../pages/Opportunities')),
+  launchpad: lazy(() => import('../pages/Launchpad')),
+  conversations: lazy(() => import('../pages/Conversations')),
+  calendars: lazy(() => import('../pages/Calendars')),
+  payments: lazy(() => import('../pages/Payments')),
+  marketing: lazy(() => import('../pages/Marketing')),
+  automation: lazy(() => import('../pages/Automation')),
+  support: lazy(() => import('../pages/Support')),
+  university: lazy(() => import('../pages/University')),
+  outbound: lazy(() => import('../pages/Outbound')),
+  identity: lazy(() => import('../pages/Identity')),
+  factory: lazy(() => import('../pages/AccountFactory')),
+  deliverability: lazy(() => import('../pages/Deliverability')),
+  website: lazy(() => import('../pages/Website')),
+  upgrade: lazy(() => import('../pages/GrowthHub')),
+  blueprint: lazy(() => import('../pages/Blueprint')),
+  'content-board': lazy(() => import('../pages/ContentBoard')),
+  resources: lazy(() => import('../pages/Resources')),
+  'ai-center': lazy(() => import('../pages/AICommandCenter')),
+  'omni-brain': lazy(() => import('../pages/OmniBrain')),
+  'apps-hub': lazy(() => import('../pages/AppsHub')),
+  'connections': lazy(() => import('../pages/Connections')),
+  'browser': lazy(() => import('../pages/WebBrowser')),
+  'webhosting': lazy(() => import('../pages/WebHosting')),
+  'trading': lazy(() => import('../pages/TradingHub')),
+};

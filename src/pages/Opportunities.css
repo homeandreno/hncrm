@@ -1,0 +1,135 @@
+.opportunities-page {
+  height: 100%;
+  overflow: hidden; /* Prevent page scroll, scroll columns instead */
+}
+
+.kanban-board {
+  display: flex;
+  gap: 24px;
+  height: calc(100vh - 180px);
+  overflow-x: auto;
+  padding-bottom: 16px;
+}
+
+.kanban-column {
+  min-width: 300px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+.col-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.col-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.column-header h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.deal-count {
+  background: rgba(255,255,255,0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.column-content {
+  flex: 1;
+  background: rgba(255,255,255,0.01);
+  border: 1px dashed var(--glass-border);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.deal-card {
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  cursor: grab;
+  border-left: 3px solid transparent;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.deal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.deal-card:active {
+  cursor: grabbing;
+}
+
+.deal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.deal-header h4 {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.deal-company {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.deal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.deal-value {
+  font-weight: 600;
+  color: #fff;
+}
+
+.deal-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.deal-time.warning {
+  color: #ef4444;
+}
+
+.deal-card.stagnant {
+  border-left-color: #ef4444;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, rgba(255,255,255,0.03) 100%);
+}
+
+.stagnant-alert {
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 6px;
+  border-radius: 4px;
+  text-align: center;
+}
