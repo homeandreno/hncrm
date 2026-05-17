@@ -22,37 +22,80 @@ import { LogOut, RefreshCcw, Shield, Globe, Code, ExternalLink } from 'lucide-re
 import { PAGE_REGISTRY } from '../lib/windowRegistry';
 import './Sidebar.css';
 
-const INITIAL_NAV_ITEMS = Object.keys(PAGE_REGISTRY).map(id => ({
+const ALL_NAV_ITEMS = Object.keys(PAGE_REGISTRY).map(id => ({
   id,
   path: `/${id}`,
   label: PAGE_REGISTRY[id].label,
   icon: PAGE_REGISTRY[id].icon
-})).filter(item => {
-  const hiddenIds = ['omni-brain', 'apps-hub', 'ai-center', 'browser', 'contacts', 'opportunities'];
-  return !hiddenIds.includes(item.id);
-});
+}));
+
+const DEFAULT_HIDDEN_IDS = ['omni-brain', 'apps-hub', 'ai-center', 'browser', 'contacts', 'opportunities'];
 
 const Sidebar = () => {
   const { logout } = useContext(AuthContext);
   const { openWindow } = useWorkspace();
   const location = useLocation();
-  const [navItems, setNavItems] = useState(INITIAL_NAV_ITEMS);
+  const [navItems, setNavItems] = useState([]);
 
-  // Load and save order
-  useEffect(() => {
-    const saved = localStorage.getItem('sidebar-nav-order');
-    if (saved) {
+  // Load active navigation items and custom ordering
+  const loadNavItems = () => {
+    const activeIdsSaved = localStorage.getItem('sidebar-active-ids');
+    const orderSaved = localStorage.getItem('sidebar-nav-order');
+    
+    let activeIds;
+    if (activeIdsSaved) {
       try {
-        const orderIds = JSON.parse(saved);
-        const reordered = orderIds.map(id => INITIAL_NAV_ITEMS.find(item => item.id === id)).filter(Boolean);
-        const remaining = INITIAL_NAV_ITEMS.filter(item => !orderIds.includes(item.id));
-        setNavItems([...reordered, ...remaining]);
+        activeIds = JSON.parse(activeIdsSaved);
+        let updated = false;
+        if (activeIds && Array.isArray(activeIds)) {
+          if (!activeIds.includes('scraper')) {
+            activeIds.push('scraper');
+            updated = true;
+          }
+          if (!activeIds.includes('lead-validator')) {
+            activeIds.push('lead-validator');
+            updated = true;
+          }
+          if (updated) {
+            localStorage.setItem('sidebar-active-ids', JSON.stringify(activeIds));
+          }
+        }
       } catch (e) {}
     }
+    
+    if (!activeIds) {
+      activeIds = ALL_NAV_ITEMS.filter(item => !DEFAULT_HIDDEN_IDS.includes(item.id)).map(i => i.id);
+    }
+
+    const activeItems = ALL_NAV_ITEMS.filter(item => activeIds.includes(item.id));
+
+    if (orderSaved) {
+      try {
+        const orderIds = JSON.parse(orderSaved);
+        const reordered = orderIds.map(id => activeItems.find(item => item.id === id)).filter(Boolean);
+        const remaining = activeItems.filter(item => !orderIds.includes(item.id));
+        setNavItems([...reordered, ...remaining]);
+        return;
+      } catch (e) {}
+    }
+    setNavItems(activeItems);
+  };
+
+  useEffect(() => {
+    loadNavItems();
+
+    // Listen for context menu customization triggers
+    const handleUpdate = () => {
+      loadNavItems();
+    };
+    window.addEventListener('sidebar-updated', handleUpdate);
+    return () => window.removeEventListener('sidebar-updated', handleUpdate);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('sidebar-nav-order', JSON.stringify(navItems.map(i => i.id)));
+    if (navItems.length > 0) {
+      localStorage.setItem('sidebar-nav-order', JSON.stringify(navItems.map(i => i.id)));
+    }
   }, [navItems]);
 
   const sensors = useSensors(
