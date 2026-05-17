@@ -119,7 +119,11 @@ const Sidebar = () => {
       <div className="sidebar-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>HNRENO<span className="text-accent">.</span></h2>
         <button 
-          onClick={() => { localStorage.removeItem('sidebar-nav-order'); setNavItems(INITIAL_NAV_ITEMS); }}
+          onClick={() => { 
+            localStorage.removeItem('sidebar-nav-order'); 
+            localStorage.removeItem('sidebar-active-ids');
+            window.location.reload();
+          }}
           style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', opacity: 0.5 }}
           title="Reset Menu"
         >

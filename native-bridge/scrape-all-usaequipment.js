@@ -22,9 +22,15 @@ const TARGETS = [
 const vaultDir = path.join(__dirname, 'vault', 'Equipment');
 const mediaDir = path.join(vaultDir, 'media');
 
+const publicVaultDir = path.join(__dirname, '..', 'public', 'vault', 'Equipment');
+const publicMediaDir = path.join(publicVaultDir, 'media');
+
 // Ensure directories exist
 if (!fs.existsSync(vaultDir)) fs.mkdirSync(vaultDir, { recursive: true });
 if (!fs.existsSync(mediaDir)) fs.mkdirSync(mediaDir, { recursive: true });
+
+if (!fs.existsSync(publicVaultDir)) fs.mkdirSync(publicVaultDir, { recursive: true });
+if (!fs.existsSync(publicMediaDir)) fs.mkdirSync(publicMediaDir, { recursive: true });
 
 async function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
@@ -105,6 +111,10 @@ async function scrapeAll() {
       const html = await page.content();
       const filePath = path.join(vaultDir, target.file);
       fs.writeFileSync(filePath, html);
+      
+      const publicFilePath = path.join(publicVaultDir, target.file);
+      fs.writeFileSync(publicFilePath, html);
+      
       console.log(`[HARVEST] ✓ Cloned and saved to: ${target.file} (${Math.round(html.length / 1024)} KB)`);
 
       // Extract new images to enrich our media assets vault
@@ -123,8 +133,12 @@ async function scrapeAll() {
           const fileIndex = idx * 10 + i;
           const imgFileName = `asset_${fileIndex}${ext}`;
           const destPath = path.join(mediaDir, imgFileName);
+          const publicDestPath = path.join(publicMediaDir, imgFileName);
           
           await downloadFile(imgUrl, destPath);
+          try {
+            fs.copyFileSync(destPath, publicDestPath);
+          } catch(err) {}
           console.log(`[HARVEST]   ↳ media asset cached: ${imgFileName}`);
         } catch (e) {
           // Fail silently for single images to not break crawler flow
