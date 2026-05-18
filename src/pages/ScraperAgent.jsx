@@ -603,199 +603,245 @@ const ScraperAgent = () => {
         </div>
 
         {(() => {
-          const currentSector = vaultData[activeTab] || { pages: [], media: [], mappings: {} };
-          return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-              
-              {/* Cloned catalogs directory */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Layout size={18} color="#ff5722" />
-                  <h4 style={{ margin: 0, color: 'white', fontSize: '1rem', fontWeight: 800 }}>
-                    Harvested Site Blueprint Pages & Catalogs ({currentSector.pages.length})
-                  </h4>
-                </div>
-                
-                {currentSector.pages.length === 0 ? (
-                  <div style={{ padding: '36px', textAlign: 'center', color: '#475569', background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.05)', borderRadius: '16px', fontSize: '0.85rem' }}>
-                    No pages scraped in this category yet. Run Firecrawl Crawler on a target URL to clone sub-pages.
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
-                    {currentSector.pages.map((page, idx) => (
-                      <div 
-                        key={idx}
-                        className="glass-panel"
-                        style={{
-                          padding: '20px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          gap: '14px',
-                          background: 'rgba(255, 255, 255, 0.01)',
-                          border: '1px solid rgba(255,255,255,0.04)',
-                          borderRadius: '16px',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255, 69, 0, 0.3)'; e.currentTarget.style.background = 'rgba(255, 69, 0, 0.01)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.01)'; }}
-                      >
-                        <div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'white' }}>{page.label}</span>
-                            <span style={{ fontSize: '0.62rem', background: 'rgba(255, 87, 34, 0.1)', color: '#ff5722', border: '1px solid rgba(255, 87, 34, 0.2)', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>CLONED</span>
-                          </div>
-                          <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b', lineHeight: 1.4 }}>{page.desc}</p>
-                        </div>
+          const currentSector = vaultData[activeTab] || { pages: [], media: [], mappings: {}, catalogs: [] };
+          
+          // Combine all assets into a single list
+          const combinedAssets = [
+            ...(currentSector.pages || []).map(p => ({
+              ...p,
+              assetType: 'page',
+              name: p.label,
+              file: p.file,
+              desc: p.desc
+            })),
+            ...(currentSector.catalogs || []).map(c => ({
+              ...c,
+              assetType: 'pdf',
+              name: c.name,
+              file: c.file,
+              desc: 'Technical brochure/catalog file'
+            })),
+            ...(currentSector.media || []).map(m => ({
+              ...m,
+              assetType: 'image',
+              name: m.name,
+              file: m.name,
+              type: m.type || 'webp',
+              desc: 'Harvested media asset'
+            }))
+          ];
 
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
-                          <button 
-                            type="button"
-                            onClick={() => { setPreviewUrl(`${VAULT_BASE_URL}/vault/${activeTab}/${page.file}`); setPreviewTitle(page.label); }}
-                            style={{ ...secondaryButtonStyle, flex: 1, justifyContent: 'center', padding: '6px 12px', fontSize: '0.72rem' }}
-                          >
-                            <Eye size={12} />
-                            <span>Preview</span>
-                          </button>
-                          <a 
-                            href={`${VAULT_BASE_URL}/vault/${activeTab}/${page.file}`} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            style={{ ...secondaryButtonStyle, flex: 1, justifyContent: 'center', padding: '6px 12px', fontSize: '0.72rem', textDecoration: 'none' }}
-                          >
-                            <ExternalLink size={12} />
-                            <span>Open</span>
-                          </a>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              {/* Asset counter and description */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 600 }}>
+                  Showing <strong style={{ color: 'white' }}>{combinedAssets.length}</strong> total harvested assets in <span style={{ color: '#ff5722', fontWeight: 800 }}>{activeTab}</span> Sector
+                </span>
               </div>
 
-              {/* Cloned Technical Catalogs & Brochures (PDF) */}
-              {currentSector.catalogs && currentSector.catalogs.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <FileText size={18} color="#10b981" />
-                    <h4 style={{ margin: 0, color: 'white', fontSize: '1rem', fontWeight: 800 }}>
-                      Harvested Technical Catalogs & Brochures ({currentSector.catalogs.length})
-                    </h4>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-                    {currentSector.catalogs.map((catalog, idx) => (
-                      <div 
-                        key={idx}
-                        className="glass-panel"
-                        style={{
-                          padding: '16px 20px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '12px',
-                          background: 'rgba(16, 185, 129, 0.02)',
-                          border: '1px solid rgba(16, 185, 129, 0.1)',
-                          borderRadius: '12px',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
-                          <FileText size={24} color="#10b981" style={{ flexShrink: 0 }} />
-                          <div style={{ overflow: 'hidden' }}>
-                            <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }} title={catalog.name}>
-                              {catalog.name}
-                            </div>
-                            <span style={{ fontSize: '0.62rem', color: '#94a3b8' }}>PDF Catalog File</span>
-                          </div>
-                        </div>
-                        <a 
-                          href={`${VAULT_BASE_URL}/vault/${activeTab}/catalogs/${catalog.file}`} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          style={{
-                            ...secondaryButtonStyle,
-                            padding: '6px 12px',
-                            fontSize: '0.7rem',
-                            background: '#10b981',
-                            color: 'black',
-                            border: 'none',
-                            textDecoration: 'none',
-                            fontWeight: 800,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <ExternalLink size={12} color="black" />
-                          <span>View PDF</span>
-                        </a>
-                      </div>
-                    ))}
-                  </div>
+              {combinedAssets.length === 0 ? (
+                <div style={{ padding: '60px', textAlign: 'center', color: '#475569', background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.05)', borderRadius: '20px', fontSize: '0.88rem' }}>
+                  No pages, catalogs, or media assets found in this sector. Run the scraper or crawler to gather assets!
                 </div>
-              )}
-
-              {/* Cloned Images Grid */}
-              <div>
-                <h5 style={{ color: 'white', fontSize: '0.8rem', fontWeight: 800, marginBottom: '16px', letterSpacing: '0.05em' }}>
-                  HARVESTED IMAGES Vault ({currentSector.media.length})
-                </h5>
-                
-                {currentSector.media.length === 0 ? (
-                  <div style={{ padding: '40px', textAlign: 'center', color: '#475569', background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.05)', borderRadius: '16px' }}>
-                    No media harvested. Scrape a URL to crawl and upscale high-resolution catalog images.
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '16px' }}>
-                    {currentSector.media.map((asset, idx) => {
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+                  {combinedAssets.map((asset, idx) => {
+                    if (asset.assetType === 'image') {
                       const originalUrl = currentSector.mappings?.[asset.name];
+                      const imageUrl = `${VAULT_BASE_URL}/vault/${activeTab}/media/${asset.name}`;
                       return (
                         <div 
                           key={idx}
+                          className="glass-panel"
                           style={{
-                            background: 'rgba(0,0,0,0.3)',
-                            border: '1px solid rgba(255,255,255,0.04)',
-                            borderRadius: '12px',
+                            background: 'rgba(10, 10, 15, 0.4)',
+                            border: '1px solid rgba(255, 255, 255, 0.04)',
+                            borderRadius: '16px',
                             overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            aspectRatio: '1.1',
                             position: 'relative',
-                            aspectRatio: '1',
-                            transition: 'all 0.2s',
+                            transition: 'all 0.2s'
                           }}
                           onMouseEnter={e => { e.currentTarget.style.borderColor = '#ff5722'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                           onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.04)'; e.currentTarget.style.transform = 'translateY(0)'; }}
                         >
-                          <img 
-                            src={`${VAULT_BASE_URL}/vault/${activeTab}/media/${asset.name}`} 
-                            alt={`asset_${idx}`} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }} 
-                            onClick={() => setLightboxImg(`${VAULT_BASE_URL}/vault/${activeTab}/media/${asset.name}`)}
-                          />
-                          
-                          {/* Google Lens Lookup Hover Trigger */}
-                          {originalUrl && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
+                          {/* Image Container */}
+                          <div style={{ flex: 1, position: 'relative', overflow: 'hidden', background: '#000' }}>
+                            <img 
+                              src={imageUrl} 
+                              alt={asset.name} 
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }}
+                              onClick={() => setLightboxImg(imageUrl)}
+                            />
+                            
+                            {/* Google Lens Lookup Hover Trigger */}
+                            {originalUrl && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
                                   e.stopPropagation();
                                   window.open(`https://lens.google.com/uploadbyurl?url=${encodeURIComponent(originalUrl)}`, '_blank');
-                              }}
-                              style={hoverLensButtonStyle}
-                              title="Search with Google Lens"
-                            >
-                              <Search size={12} color="black" />
-                            </button>
-                          )}
+                                }}
+                                style={hoverLensButtonStyle}
+                                title="Search with Google Lens"
+                              >
+                                <Search size={12} color="black" />
+                              </button>
+                            )}
+                            
+                            <span style={{ position: 'absolute', bottom: '8px', right: '8px', fontSize: '0.58rem', background: 'rgba(255, 87, 34, 0.85)', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>
+                              IMAGE ({asset.type.toUpperCase()})
+                            </span>
+                          </div>
 
-                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.85))', padding: '6px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.62rem', color: '#94a3b8', fontFamily: 'monospace' }}>#{idx}</span>
-                            <span style={{ fontSize: '0.58rem', background: 'rgba(255, 87, 34, 0.2)', color: '#ff5722', padding: '2px 4px', borderRadius: '4px', fontWeight: 800 }}>{asset.type.toUpperCase()}</span>
+                          {/* Footer Info */}
+                          <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.3)' }}>
+                            <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
+                              {asset.name}
+                            </span>
+                            <button 
+                              type="button"
+                              onClick={() => setLightboxImg(imageUrl)}
+                              style={{ ...secondaryButtonStyle, padding: '4px 10px', fontSize: '0.68rem', margin: 0 }}
+                            >
+                              <Eye size={10} />
+                              <span>View</span>
+                            </button>
                           </div>
                         </div>
                       );
-                    })}
-                  </div>
-                )}
-              </div>
+                    }
+
+                    if (asset.assetType === 'pdf') {
+                      const pdfUrl = `${VAULT_BASE_URL}/vault/${activeTab}/catalogs/${asset.file}`;
+                      return (
+                        <div 
+                          key={idx}
+                          className="glass-panel"
+                          style={{
+                            background: 'rgba(16, 185, 129, 0.02)',
+                            border: '1px solid rgba(16, 185, 129, 0.1)',
+                            borderRadius: '16px',
+                            padding: '20px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            aspectRatio: '1.1',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.1)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <FileText size={20} color="#10b981" />
+                              </div>
+                              <span style={{ fontSize: '0.58rem', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '2px 6px', borderRadius: '6px', fontWeight: 800 }}>
+                                PDF SPECS
+                              </span>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'white', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }} title={asset.name}>
+                                {asset.name}
+                              </div>
+                              <span style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '4px', display: 'block' }}>{asset.file}</span>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                            <button 
+                              type="button"
+                              onClick={() => { setPreviewUrl(pdfUrl); setPreviewTitle(asset.name); }}
+                              style={{ ...secondaryButtonStyle, flex: 1, justifyContent: 'center', padding: '6px 12px', fontSize: '0.72rem' }}
+                            >
+                              <Eye size={12} />
+                              <span>Preview</span>
+                            </button>
+                            <a 
+                              href={pdfUrl} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              style={{ ...secondaryButtonStyle, flex: 1, justifyContent: 'center', padding: '6px 12px', fontSize: '0.72rem', textDecoration: 'none', background: '#10b981', color: 'black', border: 'none', fontWeight: 800 }}
+                            >
+                              <ExternalLink size={12} color="black" />
+                              <span>Open PDF</span>
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    if (asset.assetType === 'page') {
+                      const pageUrl = `${VAULT_BASE_URL}/vault/${activeTab}/${asset.file}`;
+                      return (
+                        <div 
+                          key={idx}
+                          className="glass-panel"
+                          style={{
+                            background: 'rgba(255, 69, 0, 0.01)',
+                            border: '1px solid rgba(255, 69, 0, 0.08)',
+                            borderRadius: '16px',
+                            padding: '20px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            aspectRatio: '1.1',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = '#ff5722'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255, 69, 0, 0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                        >
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255, 87, 34, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Globe size={20} color="#ff5722" />
+                              </div>
+                              <span style={{ fontSize: '0.58rem', background: 'rgba(255, 87, 34, 0.15)', color: '#ff5722', border: '1px solid rgba(255, 87, 34, 0.2)', padding: '2px 6px', borderRadius: '6px', fontWeight: 800 }}>
+                                CLONED PAGE
+                              </span>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'white', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }} title={asset.name}>
+                                {asset.name}
+                              </div>
+                              <p style={{ margin: '4px 0 0 0', fontSize: '0.72rem', color: '#64748b', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {asset.desc}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                            <button 
+                              type="button"
+                              onClick={() => { setPreviewUrl(pageUrl); setPreviewTitle(asset.name); }}
+                              style={{ ...secondaryButtonStyle, flex: 1, justifyContent: 'center', padding: '6px 12px', fontSize: '0.72rem' }}
+                            >
+                              <Eye size={12} />
+                              <span>Preview</span>
+                            </button>
+                            <a 
+                              href={pageUrl} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              style={{ ...secondaryButtonStyle, flex: 1, justifyContent: 'center', padding: '6px 12px', fontSize: '0.72rem', textDecoration: 'none' }}
+                            >
+                              <ExternalLink size={12} />
+                              <span>Open Live</span>
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  })}
+                </div>
+              )}
 
             </div>
           );
