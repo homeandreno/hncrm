@@ -1,9 +1,9 @@
 import React, { lazy } from 'react';
-import { 
+import {
   Rocket, LayoutDashboard, MessageSquare, Calendar, Users, Columns, CreditCard,
   Megaphone, Workflow, LifeBuoy, GraduationCap, PhoneCall, ArrowUpCircle,
   Briefcase, Share2, BookOpen, TrendingUp, Fingerprint, Layout, ShieldCheck,
-  Lightbulb, Cpu, Brain, RefreshCcw, Wifi, Globe, Server, BarChart3, Zap
+  Lightbulb, Cpu, Brain, RefreshCcw, Wifi, Globe, Server, BarChart3, Zap, Bot
 } from 'lucide-react';
 
 import { COMPONENT_MAP } from './componentRegistry';
@@ -39,5 +39,6 @@ export const PAGE_REGISTRY = {
   'browser': { component: COMPONENT_MAP.browser, icon: Globe, label: 'Web Browser' },
   'webhosting': { component: COMPONENT_MAP.webhosting, icon: Server, label: 'Web Hosting' },
   'trading': { component: COMPONENT_MAP.trading, icon: BarChart3, label: 'Trading Hub' },
+  'scraper': { component: COMPONENT_MAP.scraper, icon: Bot, label: 'Scraper Agent' },
+  'lead-validator': { component: COMPONENT_MAP['lead-validator'], icon: Zap, label: 'Lead Validator' },
 };
-
