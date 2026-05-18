@@ -29,4 +29,6 @@ export const COMPONENT_MAP = {
   'browser': lazy(() => import('../pages/WebBrowser')),
   'webhosting': lazy(() => import('../pages/WebHosting')),
   'trading': lazy(() => import('../pages/TradingHub')),
+  'scraper': lazy(() => import('../pages/ScraperAgent')),
+  'lead-validator': lazy(() => import('../pages/LeadValidator')),
 };
